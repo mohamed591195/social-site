@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{%load thumbnail%}
+{%block title%}{{user.get_full_name}}{%endblock%}
+{%block content%}
+<h1>{{user.get_full_name}}</h1>
+<div class="profile-info">
+    {% thumbnail user.profile.photo '300x300' crop='100%' as im %}
+    <img src="{{im.url}}">
+    {% endthumbnail %}
+</div>
+    {% with total_followers=user.followers.count %}
+    <span class="count">
+        <span class="total" id='fol'>{{ total_followers }}</span>
+        follower{{ total_followers|pluralize }}
+      </span>
+      <button id='but' class="count">
+            follow
+        </button>
+    {% endwith %}
+{%endblock%}
+{%block js%}
+<script>
+    var url = {%url 'account:follow_link'%};
+    var but = document.querySelector('#but')
+        but.addEventListener('click', function(){
+            $.ajax({
+                type:'POST',
+                url: url,
+                data:{
+                    id: '{{user.id}}'
+                },
+                beforeSend:function(request){
+                    request.setRequestHeader('X-CSRFToken', '{{csrf_token}}')
+                },
+                success: function(data){
+                    if (data.status == 'ok'){
+                        document.getElementById('fol').innerHTML = data.followers
+                    }
+                }
+            })
+        })
+    
+</script>
+{%endblock%}

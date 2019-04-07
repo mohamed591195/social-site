@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{%load thumbnail%}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  <p>Welcome to your dashboard. You can 
+    <a href="{% url 'account:editinfo_page' %}">
+      edit your profile
+    </a>
+     or
+    <a href="{% url 'account:pass_change_page' %}">
+      change your password
+    </a>.
+  </p>
+  {%with request.user.images_created.count as total_image_created%}
+  You have bookmarked {{total_image_created}} image{{total_image_created|pluralize}}
+  {%endwith%}
+  
+  <p>Drag the following button to your bookmarks toolbar to bookmark images from other websites
+    <a href="javascript:{%include 'bookmarklet_launcher.js'%}" class="button"> Bookmarkit</a>
+  </p>
+  <h2>What's happening</h2>
+<div id="action-list">
+  {% for action in actions %}
+    {% include "actions/action_detail.html" %}
+  {% endfor %}
+</div>
+{% endblock %}

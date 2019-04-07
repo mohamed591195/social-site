@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{%load thumbnail%}
+
+{% block title %}{{ image.title }}{% endblock %}
+
+{% block content %}
+  <h1>{{ image.title }}</h1>
+  {% thumbnail image.image "300" as im %}
+  <a href="{{image.image.url}}">
+  <img src="{{ im.url }}" class="image-detail">
+    </a>
+  {%endthumbnail%}
+  {% with total_likes=image.user_like.count %}
+    <div class="image-info">
+      <div class="rel">
+        
+          <button class="count" id='button'>{{ total_likes }} like{{ total_likes|pluralize }}</button>
+        
+      </div>
+      <span class="count">
+        {{ total_views }} view{{ total_views|pluralize }}
+      </span>
+      {{ image.description|linebreaks }}
+    </div>
+    <div class="image-likes">
+        <!-- <form method='POST' action="{%url 'images:image_like' %}">
+            {%csrf_token%}
+            <button type="submit" value="{{image.id}}" name="image_id">Like</button>
+        </form> -->
+      {% for user in image.user_like.all %}
+        <div>
+          
+          <p>{{ user.first_name }}</p>
+        </div>
+      {% empty %}
+        Nobody likes this image yet.
+      {% endfor %}
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{%block js%}
+
+<script >
+  var id = {{image.id}}
+  url = '{% url 'images:image_like'%}'
+  var but = document.querySelector('#button')
+  var rel = document.querySelector('.rel')
+  but.addEventListener('click', function(){
+    
+    $.ajax({
+    type: 'POST',
+    url: url,
+    beforeSend: function(request) {
+    request.setRequestHeader("X-CSRFToken", '{{csrf_token }}')
+    },
+    data: {
+      id: id,
+    },
+    success:function(data){
+     (data.status) == 'done' ? but.innerHTML = data.likes+' likes'  : console.log(false)
+    }
+    
+    
+  })
+  })
+</script>
+{%endblock%}
